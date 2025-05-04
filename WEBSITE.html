@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Academia Tecnológica Fundamental - Curso Python</title>
+    <!-- Canvas para la animación de fondo -->
+    <canvas id="background-animation" style="position: fixed; top: 0; left: 0; z-index: -1;"></canvas>
+    <style>
+        /* Variables de colores */
+        :root {
+            --color-beige: #9c947d;
+            --color-olive: #708160;
+            --color-khaki: #c0b283;
+            --color-dark-brown: #5d534a;
+            --color-light-beige: #d3ccb3;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--color-beige);
+            color: var(--color-dark-brown);
+            overflow-x: hidden;
+        }
+
+        /* Página de bienvenida */
+        #welcome-page {
+            height: 100vh;
+            width: 100%;
+            background-color: var(--color-beige);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            z-index: 10;
+            transition: transform 1.5s ease-in-out;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s forwards;
+            color: var(--color-dark-brown);
+        }
+
+        .welcome-button {
+            padding: 1rem 2rem;
+            background-color: var(--color-olive);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 1.5s forwards 0.5s;
+        }
+
+        .welcome-button:hover {
+            background-color: var(--color-dark-brown);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .copyright {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            font-size: 0.8rem;
+            color: var(--color-dark-brown);
+            opacity: 0.8;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Página principal del curso */
+        #course-page {
+            min-height: 100vh;
+            padding: 2rem;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .course-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-top: 2rem;
+        }
+
+        .course-title {
+            font-size: 2.2rem;
+            color: var(--color-dark-brown);
+            margin-bottom: 0.5rem;
+        }
+
+        .course-subtitle {
+            font-size: 1.2rem;
+            color: var(--color-khaki);
+        }
+
+        .accordion {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .accordion-item {
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .accordion-header {
+            background-color: var(--color-khaki);
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .accordion-header:hover {
+            background-color: var(--color-olive);
+            color: white;
+        }
+
+        .accordion-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+
+        .accordion-content {
+            background-color: var(--color-light-beige);
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+        }
+
+        .accordion-content-inner {
+            padding: 1rem;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+            margin: 1rem 0;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .practice-content h3 {
+            margin-bottom: 0.8rem;
+            color: var(--color-olive);
+        }
+
+        .practice-content p {
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+
+        .practice-content code {
+            background-color: #f1f1f1;
+            padding: 0.2rem 0.4rem;
+            border-radius: 3px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background-color: var(--color-khaki);
+            color: var(--color-dark-brown);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Página de bienvenida -->
+    <div id="welcome-page">
+        <h1 class="welcome-title">Bienvenido a tu Academia Tecnológica Fundamental</h1>
+        <button class="welcome-button" id="proceed-button">Proceder al Curso de Python</button>
+        <div class="copyright">Copyright © Gabriel Sebastian</div>
+    </div>
+
+    <!-- Página principal del curso -->
+    <div id="course-page">
+        <header class="course-header">
+            <h1 class="course-title">Curso de Python</h1>
+            <p class="course-subtitle">Fundamentos prácticos para estudiantes de 2º de Bachillerato</p>
+        </header>
+
+        <div class="accordion">
+            <!-- Introducción -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Introducción a Python</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner">
+                        <p>Python es un lenguaje de programación interpretado de alto nivel conocido por su simplicidad y legibilidad. Creado por Guido van Rossum en 1991, Python ha ganado enorme popularidad en campos como la ciencia de datos, inteligencia artificial, desarrollo web y automatización.</p>
+                        
+                        <div class="video-container">
+                            <!-- Aquí insertarás tu video de YouTube -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <p>En este curso, exploraremos los fundamentos de Python y cómo aplicarlo en situaciones prácticas orientadas a estudiantes de bachillerato.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Práctica 1 -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Práctica 1: Variables y Tipos de Datos</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner practice-content">
+                        <h3>Objetivos de Aprendizaje</h3>
+                        <p>Aprenderás a trabajar con variables, tipos de datos básicos y operaciones en Python.</p>
+                        
+                        <div class="video-container">
+                            <!-- Video de la práctica 1 -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <h3>Ejercicio Práctico</h3>
+                        <p>Crea un programa que calcule el área y perímetro de diferentes figuras geométricas.</p>
+                        <p>Ejemplo de código:</p>
+                        <pre><code>
+# Calcular área de un círculo
+radio = 5
+pi = 3.14159
+area = pi * radio**2
+print(f"El área del círculo es: {area}")
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Práctica 2 -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Práctica 2: Estructuras de Control</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner practice-content">
+                        <h3>Objetivos de Aprendizaje</h3>
+                        <p>Aprenderás a utilizar condicionales (if, elif, else) y bucles (for, while) para controlar el flujo de tu programa.</p>
+                        
+                        <div class="video-container">
+                            <!-- Video de la práctica 2 -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <h3>Ejercicio Práctico</h3>
+                        <p>Crea un programa que determine si un número es primo y muestre todos los números primos hasta un límite definido.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Práctica 3 -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Práctica 3: Funciones y Modularidad</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner practice-content">
+                        <h3>Objetivos de Aprendizaje</h3>
+                        <p>Aprenderás a crear funciones reutilizables y a organizar tu código de manera modular.</p>
+                        
+                        <div class="video-container">
+                            <!-- Video de la práctica 3 -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <h3>Ejercicio Práctico</h3>
+                        <p>Desarrolla una calculadora con funciones para las operaciones básicas y algunas avanzadas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Práctica 4 -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Práctica 4: Estructuras de Datos</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner practice-content">
+                        <h3>Objetivos de Aprendizaje</h3>
+                        <p>Aprenderás a trabajar con listas, diccionarios, tuplas y conjuntos para organizar datos.</p>
+                        
+                        <div class="video-container">
+                            <!-- Video de la práctica 4 -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <h3>Ejercicio Práctico</h3>
+                        <p>Crea un programa para gestionar una agenda de contactos con nombres, teléfonos y correos electrónicos.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Práctica 5 -->
+            <div class="accordion-item">
+                <div class="accordion-header">
+                    <span class="accordion-title">Práctica 5: Proyecto Final</span>
+                    <span class="accordion-icon">▼</span>
+                </div>
+                <div class="accordion-content">
+                    <div class="accordion-content-inner practice-content">
+                        <h3>Objetivos de Aprendizaje</h3>
+                        <p>Integrarás todo lo aprendido en un proyecto completo que resuelva un problema real.</p>
+                        
+                        <div class="video-container">
+                            <!-- Video de la práctica 5 -->
+                            <iframe src="/api/placeholder/560/315" allowfullscreen></iframe>
+                        </div>
+                        
+                        <h3>Proyecto Final</h3>
+                        <p>Desarrolla una aplicación de consola que simule un sistema de gestión para una biblioteca, tienda o inventario.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Academia Tecnológica Fundamental © 2025 | Creado por Gabriel Sebastian</p>
+    </footer>
+
+    <script>
+        // Función para mostrar la página principal
+        document.getElementById('proceed-button').addEventListener('click', function() {
+            document.getElementById('welcome-page').style.transform = 'translateY(-100%)';
+            setTimeout(function() {
+                document.getElementById('course-page').style.opacity = '1';
+            }, 500);
+        });
+
+        // Gestión de los desplegables
+        const accordionItems = document.querySelectorAll('.accordion-header');
+        
+        accordionItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                const icon = this.querySelector('.accordion-icon');
+                
+                // Cerrar todos los demás items
+                accordionItems.forEach(otherItem => {
+                    if (otherItem !== item) {
+                        otherItem.nextElementSibling.style.maxHeight = '0';
+                        otherItem.querySelector('.accordion-icon').style.transform = 'rotate(0deg)';
+                    }
+                });
+                
+                // Alternar el elemento actual
+                if (content.style.maxHeight) {
+                    content.style.maxHeight = null;
+                    icon.style.transform = 'rotate(0deg)';
+                } else {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                    icon.style.transform = 'rotate(180deg)';
+                }
+            });
+        });
+
+        // SIMULACIÓN DE FLUIDO (WATER RIPPLE EFFECT)
+        const canvas = document.getElementById('background-animation');
+        const ctx = canvas.getContext('2d');
+        
+        let width, height;
+        let ripples;
+        let rippleColor = 'rgba(93, 193, 185, 0.08)'; // Color base de las ondas (verde oliva)
+        let backgroundGradient;
+        
+        // Arrays para almacenar el estado de las celdas
+        let current;
+        let previous;
+        
+        function setupRipple() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Inicializar arrays para simulación de fluido
+            const size = width * height;
+            if (!current) current = new Float32Array(size);
+            if (!previous) previous = new Float32Array(size);
+            
+            // Crear degradado de fondo
+            backgroundGradient = ctx.createLinearGradient(0, 0, 0, height);
+            backgroundGradient.addColorStop(0, 'rgba(245, 240, 225, 0.8)'); // beige claro
+            backgroundGradient.addColorStop(1, 'rgba(192, 178, 131, 0.8)'); // khaki
+        }
+        
+        function drawBackground() {
+            ctx.fillStyle = backgroundGradient;
+            ctx.fillRect(0, 0, width, height);
+        }
+        
+        // Función para crear ondas donde se hace clic
+        function createRipple(x, y, force) {
+            if (x < 0 || x >= width || y < 0 || y >= height) return;
+            
+            const index = Math.floor(x) + Math.floor(y) * width;
+            if (index >= 0 && index < previous.length) {
+                previous[index] = force || 700; // Fuerza de la onda
+            }
+        }
+        
+        // Función para actualizar la simulación
+        function updateRipples() {
+            // Constantes para ajustar el comportamiento de las ondas
+            const damping = 0.98; // Amortiguación (menores valores = ondas más cortas)
+            const propagation = 4; // Velocidad de propagación de las ondas
+            
+            for (let i = 1; i < width - 1; i++) {
+                for (let j = 1; j < height - 1; j++) {
+                    const index = i + j * width;
+                    
+                    // Aplicar ecuación de onda
+                    current[index] = (
+                        previous[index - 1] + 
+                        previous[index + 1] + 
+                        previous[index - width] + 
+                        previous[index + width]
+                    ) / 2 - current[index];
+                    
+                    // Aplicar amortiguación
+                    current[index] *= damping;
+                }
+            }
+            
+            // Intercambiar buffers
+            [current, previous] = [previous, current];
+        }
+        
+        // Función para dibujar las ondas
+        function drawRipples() {
+            // Crear imagen para manipulación
+            const imageData = ctx.createImageData(width, height);
+            const data = imageData.data;
+            
+            // Dibujar las ondas
+            for (let i = 0; i < width; i++) {
+                for (let j = 0; j < height; j++) {
+                    const index = i + j * width;
+                    const dataIndex = (i + j * width) * 4;
+                    
+                    // Obtener valor de la onda
+                    let value = Math.abs(previous[index]);
+                    value = Math.min(value, 255); // Limitar valor
+                    
+                    // Aplicar color con opacidad basada en la intensidad
+                    if (value > 0.5) {
+                        // Transición de color por intensidad
+                        const opacity = value / 60; // Ajuste para control de intensidad visual
+                        
+                        const baseColor = {
+                            r: 93, // verde oliva
+                            g: 193,
+                            b: 185
+                        };
+                        
+                        const highlightColor = {
+                            r: 100, // khaki
+                            g: 190, 
+                            b: 180
+                        };
+                        
+                        // Mezclar colores según intensidad
+                        const r = baseColor.r + (highlightColor.r - baseColor.r) * (value / 255);
+                        const g = baseColor.g + (highlightColor.g - baseColor.g) * (value / 255);
+                        const b = baseColor.b + (highlightColor.b - baseColor.b) * (value / 255);
+                        
+                        data[dataIndex] = r;     // R
+                        data[dataIndex + 1] = g; // G
+                        data[dataIndex + 2] = b; // B
+                        data[dataIndex + 3] = opacity * 255; // Alpha
+                    }
+                }
+            }
+            
+            // Dibujar imagen
+            ctx.putImageData(imageData, 0, 0);
+        }
+        
+        // Inicializar
+        setupRipple();
+        
+        // Variables para el mouse
+        let mouseX = 0;
+        let mouseY = 0;
+        let mouseIsDown = false;
+        let lastMouseX = 0;
+        let lastMouseY = 0;
+        
+        // Manejar entrada del mouse
+        window.addEventListener('mousemove', function(e) {
+            lastMouseX = mouseX;
+            lastMouseY = mouseY;
+            
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
+            // Crear ondas solo si hay suficiente movimiento
+            const dx = mouseX - lastMouseX;
+            const dy = mouseY - lastMouseY;
+            const distance = Math.sqrt(dx*dx + dy*dy);
+            
+            if (distance > 5) {
+                createRipple(mouseX, mouseY, 50);
+                
+                // Crear pequeñas ondas adicionales alrededor para movimiento fluido
+                for (let i = 0; i < 3; i++) {
+                    const spread = 5;
+                    createRipple(
+                        mouseX + (Math.random() * spread * 2 - spread),
+                        mouseY + (Math.random() * spread * 2 - spread),
+                        20
+                    );
+                }
+            }
+        });
+        
+        window.addEventListener('mousedown', function(e) {
+            mouseIsDown = true;
+            createRipple(e.clientX, e.clientY, 200); // Onda más fuerte al hacer clic
+        });
+        
+        window.addEventListener('mouseup', function() {
+            mouseIsDown = false;
+        });
+        
+        // Manejar cambio de tamaño
+        window.addEventListener('resize', setupRipple);
+        
+        // Ciclo de animación
+        function animate() {
+            // Dibujar fondo
+            drawBackground();
+            
+            // Actualizar y dibujar ondas
+            updateRipples();
+            drawRipples();
+            
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    </script>
+</body>
+</html>
